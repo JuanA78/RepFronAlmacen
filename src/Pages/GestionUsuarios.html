@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Usuarios</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <!-- CDN Toastify CSS -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+<body class="bg-light p-4">
+
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="text-secondary fw-bold mb-0">
+        <i class="fas fa-users-cog text-danger me-2"></i>Gestión de Usuarios
+      </h3>
+    </div>
+
+    <div class="row g-4">
+      <!-- FORMULARIO CREAR USUARIO -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-danger text-white py-3">
+            <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Alta de Nuevo Usuario</h5>
+          </div>
+          <div class="card-body">
+            <form id="formCrearUsuario">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Nombre Completo</label>
+                <input type="text" id="nombre" class="form-control" placeholder="Ej. Juan Pérez" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Nombre de Usuario</label>
+                <input type="text" id="usuario" class="form-control" placeholder="Ej. jperez" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Contraseña (Mín. 8 caracteres)</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••" minlength="8" required />
+                <div id="createPassFeedback" class="form-text text-danger d-none">
+                  La contraseña debe tener al menos 8 caracteres.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Rol principal</label>
+                <select id="rol" class="form-select">
+                  <option value="user">Usuario Estándar</option>
+                  <option value="administrador">Administrador</option>
+                </select>
+              </div>
+
+              <button type="submit" id="btnCrearUsuario" class="btn btn-danger w-100 fw-bold mt-2">
+                <i class="fas fa-save me-2"></i>Guardar Usuario
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA DE USUARIOS -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-dark text-white py-3">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Usuarios Registrados</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>Rol</th>
+                    <th class="text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaUsuariosBody">
+                  <!-- Carga dinámica -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CAMBIAR CONTRASEÑA -->
+  <div class="modal fade" id="modalCambiarPass" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title fw-bold"><i class="fas fa-key me-2"></i>Cambiar Contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formCambiarPass">
+          <div class="modal-body">
+            <input type="hidden" id="changePassUsuario" />
+            <div class="mb-3">
+              <label class="form-label fw-bold">Usuario</label>
+              <input type="text" id="changePassUsuarioDisplay" class="form-control" disabled />
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Contraseña Actual</label>
+              <input type="password" id="passwordActual" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Nueva Contraseña (Mínimo 8 caracteres)</label>
+              <input type="password" id="passwordNueva" class="form-control" minlength="8" required />
+              <div id="passFeedback" class="form-text text-danger d-none">
+                La contraseña debe tener al menos 8 caracteres.
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" id="btnSubmitPass" class="btn btn-warning fw-bold">Actualizar Contraseña</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN -->
+  <div class="modal fade" id="modalEliminarUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center py-4">
+          <i class="fas fa-user-times text-danger display-3 mb-3"></i>
+          <p class="fs-5 mb-1">¿Estás seguro de que deseas eliminar este usuario?</p>
+          <p class="text-muted small" id="textUsuarioEliminar"></p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="btnConfirmarEliminar" class="btn btn-danger px-4 fw-bold">
+            <i class="fas fa-trash me-2"></i>Sí, Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIBRERÍAS JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="../Js/auth.js"></script>
+  <script>
+    const API_URL = 'https://apisalmacenht.onrender.com/api/usuarios';
+    const modalPassInstance = new bootstrap.Modal(document.getElementById('modalCambiarPass'));
+    const modalEliminarInstance = new bootstrap.Modal(document.getElementById('modalEliminarUsuario'));
+    
+    let usuarioIdAEliminar = null;
+
+    document.addEventListener('DOMContentLoaded', obtenerUsuarios);
+
+    // NOTIFICACIONES TOASTIFY
+    function mostrarToast(mensaje, esError = false) {
+      Toastify({
+        text: mensaje,
+        duration: 3000,
+        gravity: "top", 
+        position: "right", 
+        stopOnFocus: true,
+        style: {
+          background: esError 
+            ? "linear-gradient(to right, #ff5f6d, #ffc371)" 
+            : "linear-gradient(to right, #00b09b, #96c93d)",
+          borderRadius: "8px",
+          fontWeight: "bold",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+        }
+      }).showToast();
+    }
+
+    // VALIDACIONES DE CONTRASEÑA (MIN 8 CARACTERES)
+    const inputCreatePass = document.getElementById('password');
+    const createPassFeedback = document.getElementById('createPassFeedback');
+    const btnCrearUsuario = document.getElementById('btnCrearUsuario');
+
+    inputCreatePass.addEventListener('input', () => {
+      if (inputCreatePass.value.length < 8 && inputCreatePass.value.length > 0) {
+        createPassFeedback.classList.remove('d-none');
+        btnCrearUsuario.disabled = true;
+      } else {
+        createPassFeedback.classList.add('d-none');
+        btnCrearUsuario.disabled = false;
+      }
+    });
+
+    const inputNuevaPass = document.getElementById('passwordNueva');
+    const passFeedback = document.getElementById('passFeedback');
+    const btnSubmitPass = document.getElementById('btnSubmitPass');
+
+    inputNuevaPass.addEventListener('input', () => {
+      if (inputNuevaPass.value.length < 8 && inputNuevaPass.value.length > 0) {
+        passFeedback.classList.remove('d-none');
+        btnSubmitPass.disabled = true;
+      } else {
+        passFeedback.classList.add('d-none');
+        btnSubmitPass.disabled = false;
+      }
+    });
+
+    // 1. OBTENER USUARIOS
+    async function obtenerUsuarios() {
+      try {
+        const res = await fetch(API_URL);
+        const usuarios = await res.json();
+        
+        const tbody = document.getElementById('tablaUsuariosBody');
+        tbody.innerHTML = '';
+
+        usuarios.forEach(u => {
+          const badgeRol = u.rol === 'administrador' 
+            ? '<span class="badge bg-danger">Administrador</span>' 
+            : '<span class="badge bg-secondary">Usuario</span>';
+
+          tbody.innerHTML += `
+            <tr>
+              <td class="fw-bold">${u.usuario}</td>
+              <td>${u.nombre}</td>
+              <td>${badgeRol}</td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-warning me-1" onclick="abrirModalPassword('${u.usuario}')" title="Cambiar Contraseña">
+                  <i class="fas fa-key"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="confirmarEliminarUsuario('${u._id}', '${u.usuario}')" title="Eliminar">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        mostrarToast("Error al obtener la lista de usuarios", true);
+      }
+    }
+
+    // 2. CREAR USUARIO
+    document.getElementById('formCrearUsuario').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const password = document.getElementById('password').value.trim();
+
+      if (password.length < 8) {
+        mostrarToast('La contraseña debe tener mínimo 8 caracteres', true);
+        return;
+      }
+
+      const nuevoUsuario = {
+        nombre: document.getElementById('nombre').value.trim(),
+        usuario: document.getElementById('usuario').value.trim(),
+        password: password,
+        rol: document.getElementById('rol').value
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevoUsuario)
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          mostrarToast('Usuario creado correctamente');
+          document.getElementById('formCrearUsuario').reset();
+          obtenerUsuarios();
+        } else {
+          mostrarToast(data.error || 'Error al crear usuario', true);
+        }
+      } catch (err) {
+        mostrarToast("Error de conexión al guardar usuario", true);
+      }
+    });
+
+    // 3. ELIMINAR USUARIO CON MODAL DE CONFIRMACIÓN
+    function confirmarEliminarUsuario(id, usuario) {
+      usuarioIdAEliminar = id;
+      document.getElementById('textUsuarioEliminar').innerText = `Esta acción eliminará al usuario "@${usuario}" de forma permanente.`;
+      modalEliminarInstance.show();
+    }
+
+    document.getElementById('btnConfirmarEliminar').addEventListener('click', async () => {
+      if (!usuarioIdAEliminar) return;
+
+      try {
+        const res = await fetch(`${API_URL}/${usuarioIdAEliminar}`, { method: 'DELETE' });
+        const data = await res.json();
+
+        if (res.ok) {
+          mostrarToast(data.message || 'Usuario eliminado');
+          modalEliminarInstance.hide();
+          obtenerUsuarios();
+        } else {
+          mostrarToast(data.error || 'No se pudo eliminar el usuario', true);
+        }
+      } catch (err) {
+        mostrarToast("Error de conexión al eliminar", true);
+      } finally {
+        usuarioIdAEliminar = null;
+      }
+    });
+
+    // 4. CAMBIAR CONTRASEÑA
+    function abrirModalPassword(usuario) {
+      document.getElementById('changePassUsuario').value = usuario;
+      document.getElementById('changePassUsuarioDisplay').value = usuario;
+      document.getElementById('passwordActual').value = '';
+      document.getElementById('passwordNueva').value = '';
+      passFeedback.classList.add('d-none');
+      btnSubmitPass.disabled = false;
+      modalPassInstance.show();
+    }
+
+    document.getElementById('formCambiarPass').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const passwordNueva = document.getElementById('passwordNueva').value;
+
+      if (passwordNueva.length < 8) {
+        mostrarToast('La nueva contraseña debe tener mínimo 8 caracteres', true);
+        return;
+      }
+
+      const payload = {
+        usuario: document.getElementById('changePassUsuario').value,
+        passwordActual: document.getElementById('passwordActual').value,
+        passwordNueva: passwordNueva
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/cambiarPassword`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          mostrarToast(data.message || 'Contraseña actualizada correctamente');
+          modalPassInstance.hide();
+        } else {
+          mostrarToast(data.error || 'Error al cambiar la contraseña', true);
+        }
+      } catch (err) {
+        mostrarToast("Error de conexión al actualizar contraseña", true);
+      }
+    });
+  </script>
+</body>
+</html>

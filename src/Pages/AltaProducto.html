@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema de Inventario | Registro de Producto</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="../Css/AltaProductos.css">
+</head>
+
+<body>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-xl-9">
+        <h1 class="page-title text-center" >Registro de Productos</h1>
+        
+        <div class="card card-registro">
+          <div class="card-header card-header-custom text-white">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>Información del Producto</h5>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <form id="productForm">
+              <div class="row">
+                <!-- Columna 1 -->
+                <div class="col-md-6">
+                  <h6 class="section-title"><i class="bi bi-info-circle me-2"></i>Datos Básicos</h6>
+                  
+                  <div class="mb-4">
+                    <label class="form-label required">Nombre del Producto</label>
+                    <div class="input-group">
+                      <span class="input-group-text form-icon"><i class="bi bi-tag"></i></span>
+                      <input type="text" class="form-control" id="productName" required>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label required">Marca</label>
+                    <div class="input-group">
+                      <span class="input-group-text form-icon"><i class="bi bi-shop"></i></span>
+                      <input type="text" class="form-control" id="brand" required>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label required">Proveedor</label>
+                    <div class="input-group">
+                      <span class="input-group-text form-icon"><i class="bi bi-truck"></i></span>
+                      <input type="text" class="form-control" id="provider" required>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label required">Unidad de Medida</label>
+                    <div class="input-group">
+                      <span class="input-group-text form-icon"><i class="bi bi-rulers"></i></span>
+                      <input type="text" class="form-control" id="unit" required>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Columna 2 -->
+                <div class="col-md-6">
+                  <h6 class="section-title"><i class="bi bi-upc-scan me-2"></i>Códigos y Ubicación</h6>
+                  
+                  <div class="mb-4">
+                    <label class="form-label required">No. Parte</label>
+                    <div class="input-group">
+                      <span class="input-group-text form-icon"><i class="bi bi-123"></i></span>
+                      <input type="text" class="form-control" id="partNumber"required>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label required">Código de Barras</label>
+                    <div class="input-group">
+                      <span class="input-group-text form-icon"><i class="bi bi-upc"></i></span>
+                      <input type="text" 
+                             class="form-control" 
+                             id="barcode"
+                             placeholder="Ej: ABC123456789 o 123456789012"
+                             required>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label required">Precio de Venta</label>
+                    <div class="input-group">
+                      <span class="input-group-text form-icon"><i class="bi bi-currency-dollar"></i></span>
+                      <input type="number" class="form-control" id="price" min="0" step="0.01" placeholder="0.00" required>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-4">
+                        <label class="form-label required">Estante</label>
+                        <div class="input-group">
+                          <span class="input-group-text form-icon"><i class="bi bi-columns-gap"></i></span>
+                          <select class="form-select" id="state" required>
+                            <option disabled selected value="">Seleccione</option>
+                            <option value="1">Estante 1</option>
+                            <option value="2">Estante 2</option>
+                            <option value="3">Estante 3</option>
+                            <option value="4">Estante 4</option>
+                            <option value="5">Estante 5</option>
+                            <option value="6">Estante 6</option>
+                            <option value="7">Estante 7</option>
+                            <option value="8">Estante 8</option>
+                            <option value="9">Estante 9</option>
+                            <option value="10">Estante 10</option>
+                            <option value="11">Estante 11</option>
+                            <option value="12">Estante 12</option>
+                            <option value="13">Estante 13</option>
+                            <option value="14">Estante 14</option>
+                            <option value="15">Estante 15</option>
+                            <option value="16">Estante 16</option>
+                            <option value="17">Estante 17</option>
+                            <option value="18">Estante 18</option>
+                            <option value="19">Estante 19</option>
+                            <option value="20">Estante 20</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <div class="mb-4">
+                        <label class="form-label required">Nivel</label>
+                        <div class="input-group">
+                          <span class="input-group-text form-icon"><i class="bi bi-layers"></i></span>
+                          <select class="form-select" id="level" required>
+                            <option disabled selected value="">Seleccione</option>
+                            <option value="1">Nivel 1</option>
+                            <option value="2">Nivel 2</option>
+                            <option value="3">Nivel 3</option>
+                            <option value="4">Nivel 4</option>
+                            <option value="5">Nivel 5</option>
+                            <option value="6">Nivel 6</option>
+                            <option value="7">Nivel 7</option>
+                            <option value="8">Nivel 8</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <small class="text-muted"><span class="text-danger">*</span> Campos obligatorios</small>
+                  </div>
+                  <button type="submit" class="btn btn-registrar btn-lg px-5">
+                    <i class="bi bi-check-circle me-2"></i>Registrar Producto
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="mainToast" class="toast toast-custom border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body d-flex align-items-center" id="toastMessage">
+          <i class="bi bi-check-circle-fill me-3 fs-5"></i>
+          <span>Producto registrado correctamente</span>
+        </div>
+        <button class="btn-close btn-close-white m-auto me-3" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+ <script src="../Js/AltaProductos.js"></script>
+</body>
+</html>

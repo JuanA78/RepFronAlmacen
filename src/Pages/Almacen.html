@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Almacén HT - Productos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../Css/Almacen.css">
+</head>
+
+<body class="bg-light">
+
+<div class="container-fluid mt-3 mt-md-4">
+
+  <!-- Tarjeta de filtros y ordenamiento -->
+  <div class="filter-card mb-3 p-3 bg-white shadow-sm rounded">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="position-relative">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="form-control form-control-search" id="busquedaGeneral" 
+                 placeholder="Buscar por nombre, marca, proveedor..."
+                 oninput="filtrarProductos()">
+        </div>
+      </div>
+
+      <div class="col-md-2">
+        <input type="text" class="form-control" id="filtroEstante" 
+               placeholder="Filtrar por Estante"
+               oninput="filtrarProductos()">
+      </div>
+
+      <!-- Control de Ordenamiento (A-Z, Z-A, Estante) -->
+      <div class="col-md-3">
+        <select class="form-select" id="ordenarPor" onchange="filtrarProductos()">
+          <option value="nombre-asc">Nombre (A - Z)</option>
+          <option value="nombre-desc">Nombre (Z - A)</option>
+          <option value="estante-asc">Estante (A - Z)</option>
+          <option value="estante-desc">Estante (Z - A)</option>
+        </select>
+      </div>
+
+      <div class="col-md-1 d-flex">
+        <button class="btn btn-outline-secondary w-100" onclick="limpiarFiltros()" title="Limpiar filtros">
+          <i class="fas fa-times me-1"></i>
+        </button>
+      </div>
+
+      <div class="col-md-2 d-flex">
+        <button class="btn btn-success w-100" id="btnExportarAlmacen">
+          <i class="fas fa-file-excel me-1"></i> Exportar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarjeta principal de productos -->
+  <div class="card shadow-sm">
+    <div class="header-card bg-dark text-white p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 class="mb-0 text-white"><i class="fas fa-boxes me-2"></i>Productos en Inventario</h5>
+          <p class="mb-0 text-white-50 small">Gestión completa de productos del almacén</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-container">
+        <table class="table table-hover mb-0 responsive-table" id="tableAlmacen">
+          <thead class="table-dark">
+            <tr>
+              <th>Nombre</th>
+              <th>Marca</th>
+              <th>Proveedor</th>
+              <th>Unidad</th>
+              <th>No. Parte</th>
+              <th>Código</th>
+              <th>Existencia</th>
+              <th>Precio</th>
+              <th>Estante</th>
+              <th>Nivel</th>
+              <th class="no-exportar text-center">Entrada</th>
+              <th class="no-exportar text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="productosTable"></tbody>
+        </table>
+      </div>
+      
+      <!-- CONTROLES DE PAGINACIÓN -->
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3 border-top bg-light gap-2">
+        <div class="footer-info text-muted small" id="infoTabla">
+          Cargando productos...
+        </div>
+
+        <nav aria-label="Navegación de productos">
+          <ul class="pagination pagination-sm mb-0" id="paginationControls">
+            <li class="page-item" id="btnPaginaAnterior">
+              <button class="btn btn-outline-primary btn-sm me-1" onclick="cambiarPagina(paginaActual - 1)">
+                <i class="fas fa-chevron-left me-1"></i> Anterior
+              </button>
+            </li>
+            
+            <li class="page-item disabled">
+              <span class="page-link text-dark fw-bold" id="indicadorPagina">Página 1 de 1</span>
+            </li>
+
+            <li class="page-item" id="btnPaginaSiguiente">
+              <button class="btn btn-outline-primary btn-sm ms-1" onclick="cambiarPagina(paginaActual + 1)">
+                Siguiente <i class="fas fa-chevron-right ms-1"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= MODAL ENTRADA ================= -->
+<div class="modal fade" id="entradaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Registrar Entrada</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form id="entradaForm" onsubmit="event.preventDefault(); guardarEntrada();">
+        <div class="modal-body">
+          <input type="hidden" id="entradaNoParte">
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">No. Parte</label>
+            <input type="text" class="form-control" id="entradaNoParteView" disabled>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Folio Compra</label>
+                <input type="text" class="form-control" id="entradaFolio" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Fecha</label>
+                <input type="date" class="form-control" id="entradaFecha" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Cantidad</label>
+                <input type="number" class="form-control" id="entradaCantidad" min="1" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Precio Compra</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" step="0.01" class="form-control" id="entradaPrecioCompra" required>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" id="btnGuardarEntrada" class="btn btn-success">
+            <i class="fas fa-save me-1"></i> Guardar Entrada
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL PRECIO ================= -->
+<div class="modal fade" id="precioModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title"><i class="fas fa-dollar-sign me-2"></i>Actualizar Precio</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="precioProductoId">
+        
+        <div class="text-center mb-4">
+          <div class="mb-2">
+            <span class="badge bg-info" id="productoNoParteModal"></span>
+          </div>
+          <h6 id="productoNombreModal" class="text-muted"></h6>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Precio Actual</label>
+          <div class="input-group mb-2">
+            <span class="input-group-text">$</span>
+            <input type="number" step="0.01" min="0" class="form-control" id="precioActual" disabled>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nuevo Precio</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" step="0.01" min="0" class="form-control" id="nuevoPrecio">
+          </div>
+          <div class="form-text">Ingrese el nuevo precio de venta</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-warning" onclick="actualizarPrecio()">
+          <i class="fas fa-save me-1"></i> Actualizar Precio
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL EDITAR ================= -->
+<div class="modal fade" id="editarModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-edit me-2"></i>Editar Producto
+        </h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="editId">
+
+        <div class="mb-2">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-control" id="editNombre">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Marca</label>
+          <input type="text" class="form-control" id="editMarca">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Proveedor</label>
+          <input type="text" class="form-control" id="editProveedor">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Unidad</label>
+          <input type="text" class="form-control" id="editUnidad">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">No. Parte</label>
+          <input type="text" class="form-control" id="editNoParte" disabled>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Código</label>
+          <input type="text" class="form-control" id="editCodigo">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Existencia</label>
+          <input type="number" class="form-control" id="editExistencia" disabled>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Precio</label>
+          <input type="number" class="form-control" id="editPrecio">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Estante</label>
+          <input type="text" class="form-control" id="editEstante">
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Nivel</label>
+          <input type="text" class="form-control" id="editNivel">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarEdicion()">Guardar Cambios</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL ELIMINAR ================= -->
+<div class="modal fade" id="eliminarModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle me-2"></i>Eliminar Producto
+        </h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" id="deleteId">
+
+        <p class="fw-bold text-danger">
+          ⚠️ Esta acción puede llevar a consecuencias irreversibles.
+        </p>
+
+        <p>
+          Al eliminar este producto, podrías afectar información relacionada 
+          como registros de entradas, inventario o historial de movimientos.
+        </p>
+
+        <p class="fw-bold">
+          ¿Estás seguro de que deseas continuar?
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-danger" onclick="confirmarEliminar()">
+          Sí, eliminar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="../Js/auth.js"></script>
+<script src="../Js/Almacen.js"></script>
+
+</body>
+</html>

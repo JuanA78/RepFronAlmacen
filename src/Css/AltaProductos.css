@@ -1,0 +1,142 @@
+:root {
+      --primary-color: #dc3545;
+      --primary-dark: #c82333;
+      --secondary-color: #f8f9fa;
+      --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .page-title {
+      color: #333;
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    
+    .page-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      border-radius: 2px;
+    }
+    
+    .card-registro {
+      border-radius: 16px;
+      overflow: hidden;
+      border: none;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s ease;
+    }
+    
+    .card-registro:hover {
+      transform: translateY(-5px);
+    }
+    
+    .card-header-custom {
+      background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+      padding: 1.5rem;
+      border-bottom: 0;
+    }
+    
+    .card-header-custom h5 {
+      font-size: 1.5rem;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    
+    .card-body {
+      padding: 2rem;
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+    
+    .input-group-text {
+      background-color: #f8f9fa;
+      border-radius: 8px 0 0 8px;
+      border: 1px solid #dee2e6;
+    }
+    
+    .btn-registrar {
+      background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+      border: none;
+      padding: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border-radius: 10px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-registrar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+    }
+    
+    .section-title {
+      color: #6c757d;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .toast-custom {
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .form-icon {
+      color: var(--primary-color);
+    }
+    
+    @media (max-width: 768px) {
+      .card-body {
+        padding: 1.5rem;
+      }
+      
+      .page-title {
+        font-size: 1.8rem;
+      }
+    }
+    
+    .required::after {
+      content: " *";
+      color: var(--primary-color);
+    }
+    
+    .format-info {
+      font-size: 0.85rem;
+      color: #6c757d;
+      background-color: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-top: 5px;
+      border-left: 3px solid var(--primary-color);
+    }

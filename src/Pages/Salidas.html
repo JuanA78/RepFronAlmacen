@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Inventario | Salidas de Productos</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+  <style>
+    :root {
+      --primary-color: #c82333;
+      --secondary-color: #3498db;
+      --success-color: #27ae60;
+      --danger-color: #e74c3c;
+      --warning-color: #f39c12;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container-main {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      background: linear-gradient(to right, var(--primary-color), #dc3545);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--card-shadow);
+      color: white;
+    }
+
+    .page-title {
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-title i {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .card-custom {
+      border: none;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      background: white;
+    }
+
+    .card-header-custom {
+      background: white;
+      border-bottom: 2px solid #eee;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: 0 0 12px 12px;
+    }
+
+    .table-custom {
+      margin: 0;
+      min-width: 1300px;
+    }
+
+    .table-custom thead {
+      background: linear-gradient(to right, #c82333, #e83232);
+      color: white;
+    }
+
+    .table-custom thead th {
+      border: none;
+      padding: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .table-custom tbody tr {
+      transition: all 0.2s ease;
+    }
+
+    .table-custom tbody tr:hover {
+      background-color: rgba(52, 152, 219, 0.05);
+    }
+
+    .table-custom tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border-color: #eee;
+      white-space: nowrap;
+    }
+
+    .btn-custom {
+      border-radius: 8px;
+      padding: 0.5rem 1.25rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-export {
+      background: linear-gradient(to right, #27ae60, #2ecc71);
+      color: white;
+      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-export:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+      color: white;
+    }
+
+    .btn-pdf {
+      background: linear-gradient(to right, #e74c3c, #c0392b);
+      color: white;
+      box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-pdf:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+      color: white;
+    }
+
+    .btn-delete {
+      background: linear-gradient(to right, #34495e, #2c3e50);
+      color: white;
+      box-shadow: 0 4px 10px rgba(52, 73, 94, 0.3);
+    }
+
+    .btn-delete:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(52, 73, 94, 0.4);
+      color: white;
+    }
+
+    .filter-container {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .filter-container .form-label {
+      color: #2c3e50;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .filter-container .form-control {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+    }
+
+    .filter-container .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(200, 35, 51, 0.25);
+    }
+
+    .filter-container .input-group-text {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #7f8c8d;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #bdc3c7;
+    }
+
+    .modal-custom .modal-header {
+      background: linear-gradient(to right, #e74c3c, #c0392b);
+      color: white;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .modal-custom .modal-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-custom .btn-close {
+      filter: brightness(0) invert(1);
+    }
+
+    .toast-custom {
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .status-badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      display: inline-block;
+    }
+
+    .status-pendiente {
+      background-color: rgba(243, 156, 18, 0.1);
+      color: #f39c12;
+      border: 1px solid rgba(243, 156, 18, 0.2);
+    }
+
+    .status-pagado {
+      background-color: rgba(39, 174, 96, 0.1);
+      color: #27ae60;
+      border: 1px solid rgba(39, 174, 96, 0.2);
+    }
+
+    .status-no-pagado {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .form-select-sm {
+      min-width: 120px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 6px;
+      border: 1px solid #dee2e6;
+    }
+
+    .form-select-sm:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(200, 35, 51, 0.25);
+    }
+
+    .badge {
+      padding: 0.5rem 0.75rem;
+      font-weight: 500;
+      border-radius: 6px;
+    }
+
+    code {
+      background: #f8f9fa;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        padding: 1rem;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .btn-custom {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+      }
+
+      .filter-container {
+        padding: 1rem;
+      }
+
+      .d-flex.gap-2 {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container container-main py-4">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="page-title">
+            <i class="bi bi-box-arrow-right"></i>
+            Salidas de Productos
+          </h1>
+          <p class="mb-0 mt-2 opacity-75">Gestión de productos retirados del inventario</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-custom btn-export" id="btnExportar">
+            <i class="bi bi-file-earmark-excel"></i>
+            Exportar Excel
+          </button>
+          <button class="btn btn-custom btn-pdf" id="btnReportePDF">
+            <i class="bi bi-file-earmark-pdf"></i>
+            Generar PDF
+          </button>
+          <button class="btn btn-custom btn-delete" id="btnEliminarTodo">
+            <i class="bi bi-trash-fill"></i>
+            Eliminar Todo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtro de fecha -->
+    <div class="filter-container">
+      <div class="row align-items-center">
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-calendar-date me-2"></i>
+              Filtro por fecha
+            </label>
+            <input type="date" class="form-control" id="fechaReporte">
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-search me-2"></i>
+              Buscar salida
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="bi bi-search"></i>
+              </span>
+              <input type="text" class="form-control" id="buscarSalida"
+                placeholder="Buscar por cliente">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla principal -->
+    <div class="card-custom">
+      <div class="card-header-custom d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold">
+          <i class="bi bi-table me-2"></i>
+          Lista de Salidas Registradas
+        </h5>
+        <div>
+          <span class="badge bg-primary" id="contadorRegistros">0 registros</span>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-responsive">
+          <table class="table table-custom table-hover" id="tablaSalidas">
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Producto</th>
+                <th>Tipo Salida</th>
+                <th>Cliente</th>
+                <th>Empresa</th>
+                <th>No. Parte</th>
+                <th>Fecha</th>
+                <th class="text-center">Cantidad</th>
+                <th class="text-end">Precio</th>
+                <th class="text-end">Subtotal</th>
+                <th class="text-center">Estatus Pago</th>
+                <th class="text-center">Devuelto</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center no-exportar">Devolver</th>
+                <th class="text-center no-exportar">Actualizar</th>
+              </tr>
+            </thead>
+            <tbody id="salidasBody">
+          
+              <!-- Los datos se cargarán aquí -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer de Paginación -->
+      <div class="card-footer d-flex justify-content-between align-items-center bg-transparent py-3">
+        <span class="text-muted" id="infoPaginacion">Página 1 de 1</span>
+        <div class="btn-group">
+          <button class="btn btn-outline-primary btn-sm" id="btnPaginaAnterior" disabled>
+            <i class="bi bi-chevron-left"></i> Anterior
+          </button>
+          <button class="btn btn-outline-primary btn-sm" id="btnPaginaSiguiente" disabled>
+            Siguiente <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    
+
+    <!-- Estado vacío -->
+    <div class="card-custom d-none" id="emptyState">
+      <div class="empty-state">
+        <i class="bi bi-box-arrow-right"></i>
+        <h4>No hay salidas registradas</h4>
+        <p class="mb-4">No se han encontrado salidas de productos en el sistema.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal eliminar todo -->
+  <div class="modal fade modal-custom" id="modalEliminarTodo" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Confirmar eliminación total
+          </h5>
+          <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-4">
+            <i class="bi bi-trash-fill text-danger" style="font-size: 3rem;"></i>
+          </div>
+          <h5 class="text-center mb-3">¿Eliminar las salidas?</h5>
+          <p class="text-center text-muted">
+            Esta acción eliminará permanentemente las salidas pagadas registradas en el sistema. Esta acción no se puede
+            deshacer.
+          </p>
+          <div class="alert alert-warning mt-3">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Advertencia:</strong> Esta operación afectará todos los registros históricos.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button class="btn btn-danger" id="confirmarEliminarTodo">
+            <i class="bi bi-trash-fill me-2"></i>
+            Eliminar Todo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Devolución -->
+  <div class="modal fade" id="modalDevolucion" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title">Devolver Producto</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Cantidad a devolver</label>
+            <input type="number" id="cantidadDevolverInput" class="form-control" min="1">
+            <small class="text-muted">Máximo disponible: <span id="maxDisponible">0</span></small>
+          </div>
+          <input type="hidden" id="salidaIdDevolver">
+          <input type="hidden" id="productoIdDevolver">
+          <input type="hidden" id="cantidadOriginalDevolver">
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-warning" id="btnConfirmarDevolucion">Devolver</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+    <div id="toast" class="toast toast-custom border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body d-flex align-items-center" id="toastMsg">
+          <i class="bi bi-check-circle-fill me-3 fs-5"></i>
+          <span>Acción completada</span>
+        </div>
+        <button class="btn-close btn-close-white m-auto me-3" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="../Js/auth.js"> </script>
+  <script>
+   const API = 'https://apisalmacenht.onrender.com/api/salidas';
+
+// Referencias al DOM
+const salidasBody = document.getElementById('salidasBody');
+const buscarSalidaInput = document.getElementById('buscarSalida');
+const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros');
+const btnPaginaAnterior = document.getElementById('btnPaginaAnterior');
+const btnPaginaSiguiente = document.getElementById('btnPaginaSiguiente');
+
+// Estado de la Aplicación
+let todasSalidas = [];
+let paginaActual = 1;
+let totalPaginas = 1;
+let limitePorPagina = 100;
+let estaCargando = false;
+let timeoutBusqueda = null;
+
+/* ================= UTILIDADES ================= */
+function haySalidasPagadas() {
+    return todasSalidas.some(salida => salida.EstatusPago === 'PAGADO');
+  }
+
+  function toast(msg, tipo = 'primary') {
+    const toastEl = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    if (!toastEl || !toastMsg) return;
+
+    let iconClass = 'bi-check-circle-fill';
+    if (tipo === 'danger') iconClass = 'bi-x-circle-fill';
+    if (tipo === 'warning') iconClass = 'bi-exclamation-triangle-fill';
+
+    toastMsg.innerHTML = `
+      <i class="bi ${iconClass} me-3 fs-5 text-${tipo}"></i>
+      <span>${msg}</span>
+    `;
+
+    toastEl.className = `toast toast-custom border-0 bg-${tipo} text-white`;
+    const toastInstance = new bootstrap.Toast(toastEl);
+    toastInstance.show();
+    setTimeout(() => toastInstance.hide(), 5000);
+  }
+
+  function formatearFecha(fecha) {
+    if (!fecha) return '-';
+    const [y, m, d] = fecha.split('T')[0].split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function moneda(v) {
+    return `$${parseFloat(v || 0).toFixed(2)}`;
+  }
+
+  function obtenerEstatusClase(estatus) {
+    switch (estatus) {
+      case 'PAGADO': return 'status-pagado';
+      case 'NO PAGADO': return 'status-no-pagado';
+      default: return 'status-pendiente';
+    }
+  }
+/* ================= CARGAR SALIDAS (SOLO /todas) ================= */
+async function cargarSalidas(pagina = 1) {
+    try {
+      estaCargando = true;
+      renderizarSalidas();
+
+      const clienteBusqueda = buscarSalidaInput ? buscarSalidaInput.value.trim() : '';
+      const url = new URL(`${API}/todas`);
+      url.searchParams.append('page', pagina);
+      url.searchParams.append('limit', limitePorPagina);
+
+      if (clienteBusqueda) {
+        url.searchParams.append('cliente', clienteBusqueda);
+      }
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Error al cargar salidas');
+
+      const responseData = await res.json();
+
+      todasSalidas = responseData.data || [];
+      paginaActual = responseData.paginaActual || 1;
+      totalPaginas = responseData.totalPaginas || 1;
+
+      estaCargando = false;
+      renderizarSalidas(responseData.totalSalidas || 0);
+
+    } catch (err) {
+      estaCargando = false;
+      if (salidasBody) {
+        salidasBody.innerHTML = `
+          <tr>
+            <td colspan="15" class="text-center text-danger py-4">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              Error al cargar los datos de la base de datos.
+            </td>
+          </tr>
+        `;
+      }
+      toast(`Error: ${err.message}`, 'danger');
+      console.error(err);
+    }
+  }
+
+  /* ================= RENDERIZADO ================= */
+  function renderizarSalidas(totalRegistros = 0) {
+    const contadorRegistros = document.getElementById('contadorRegistros');
+    const emptyState = document.getElementById('emptyState');
+    const tablaSalidas = document.getElementById('tablaSalidas');
+    const cardCustom = tablaSalidas ? tablaSalidas.closest('.card-custom') : null;
+    const infoPaginacion = document.getElementById('infoPaginacion');
+    const salidasBody = document.getElementById('salidasBody');
+  const btnPaginaAnterior = document.getElementById('btnPaginaAnterior');
+  const btnPaginaSiguiente = document.getElementById('btnPaginaSiguiente');
+
+    
+
+    if (!salidasBody) return;
+
+    if (estaCargando) {
+      salidasBody.innerHTML = `
+        <tr>
+          <td colspan="15" class="text-center py-5">
+            <div class="d-flex flex-column align-items-center">
+              <div class="spinner-border text-primary" role="status"></div>
+              <small class="mt-2 text-muted fw-semibold">Cargando salidas...</small>
+            </div>
+          </td>
+        </tr>`;
+      if (emptyState) emptyState.classList.add('d-none');
+      return;
+    }
+    
+
+    if (!todasSalidas || todasSalidas.length === 0) {
+      if (emptyState) emptyState.classList.remove('d-none');
+      if (cardCustom) cardCustom.classList.add('d-none');
+      if (contadorRegistros) contadorRegistros.textContent = '0 registros';
+      salidasBody.innerHTML = '';
+      return;
+    }
+    
+
+    if (emptyState) emptyState.classList.add('d-none');
+    if (cardCustom) cardCustom.classList.remove('d-none');
+
+    let htmlBuffer = '';
+
+    // 3. Recorrido de ventas
+  todasSalidas.forEach(s => {
+    // 📅 FORMATEO DE FECHA DE LA SALIDA
+    // Intenta leer FechaSalida, Fecha o createdAt
+    const fechaOrigen = s.FechaSalida || s.Fecha || s.createdAt || '';
+    const fechaISO = fechaOrigen ? fechaOrigen.split('T')[0] : '';
+    let fechaFormateada = 'N/A';
+    
+    if (fechaISO) {
+      const [year, month, day] = fechaISO.split('-');
+      fechaFormateada = `${day}/${month}/${year}`;
+    }
+
+  const productos = Array.isArray(s.Productos) ? s.Productos : [];
+
+      productos.forEach(p => {
+        const cantidadVendida = p.CantidadVendida || p.Cantidad || 0;
+        const cantidadDevuelta = p.CantidadDevuelta || 0;
+        const cantidadReal = cantidadVendida - cantidadDevuelta;
+        const subtotal = cantidadReal * (p.PrecioVenta || 0);
+        const estatusClase = obtenerEstatusClase(s.EstatusPago);
+        const estadoProducto = p.Estado || 'ACTIVO';
+        const productoId = p.producto?._id || p.producto || '';
+
+        let empresa = 'N/A';
+        if (s.TipoVenta === 'INTERNA' && s.ClienteEmpresa?.empresa) {
+          empresa = s.ClienteEmpresa.empresa.nombre || 'N/A';
+        }
+
+        htmlBuffer += `
+          <tr>
+            <td><code>${s.FolioSalida || '-'}</code></td>
+            <td class="fw-semibold">${p.NombreProducto || '-'}</td>
+            <td>${s.TipoVenta || '-'}</td>
+            <td>${s.Cliente || '-'}</td>
+            <td>${empresa}</td>
+            <td><code>${p.NoParte || '-'}</code></td>
+            <td>${fechaFormateada}</td>
+            <td class="text-center">
+              ${cantidadReal}
+              ${cantidadDevuelta > 0 ? `<br><small class="text-danger">(-${cantidadDevuelta} dev)</small>` : ''}
+            </td>
+            <td class="text-end">${moneda(p.PrecioVenta)}</td>
+            <td class="text-end fw-bold">
+              ${moneda(subtotal)}
+              ${cantidadDevuelta > 0 ? `<br><small class="text-danger">Ajustado</small>` : ''}
+            </td>
+            <td class="text-center">
+              <span class="status-badge ${estatusClase}">
+                ${s.EstatusPago || 'PENDIENTE'}
+              </span>
+            </td>
+            <td class="text-center">${cantidadDevuelta}</td>
+            <td class="text-center">
+              <span class="badge bg-${estadoProducto === 'DEVUELTO' ? 'danger' : estadoProducto === 'PARCIAL' ? 'warning' : 'success'}">
+                ${estadoProducto}
+              </span>
+            </td>
+            <td class="text-center no-exportar">
+              ${estadoProducto !== 'DEVUELTO'
+                ? `<button class="btn btn-sm btn-outline-warning"
+                     onclick="abrirModalDevolucion('${s._id}', '${productoId}', ${cantidadVendida}, ${cantidadDevuelta})">
+                     <i class="bi bi-arrow-counterclockwise"></i>
+                   </button>`
+                : '-'
+              }
+            </td>
+            <td class="text-center no-exportar">
+              <select class="form-select form-select-sm" onchange="actualizarEstatus('${s._id}', this.value)">
+                <option value="PENDIENTE" ${s.EstatusPago === 'PENDIENTE' ? 'selected' : ''}>PENDIENTE</option>
+                <option value="PAGADO" ${s.EstatusPago === 'PAGADO' ? 'selected' : ''}>PAGADO</option>
+                <option value="NO PAGADO" ${s.EstatusPago === 'NO PAGADO' ? 'selected' : ''}>NO PAGADO</option>
+              </select>
+            </td>
+          </tr>`;
+      });
+    });
+
+    salidasBody.innerHTML = htmlBuffer;
+
+    if (contadorRegistros) contadorRegistros.textContent = `${totalRegistros} registro${totalRegistros !== 1 ? 's' : ''}`;
+    if (infoPaginacion) infoPaginacion.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+    if (btnPaginaAnterior) btnPaginaAnterior.disabled = paginaActual <= 1;
+    if (btnPaginaSiguiente) btnPaginaSiguiente.disabled = paginaActual >= totalPaginas;
+  }
+/* ================= FILTROS Y EVENTOS ================= */
+function manejarFiltroInput() {
+    clearTimeout(timeoutBusqueda);
+    timeoutBusqueda = setTimeout(() => {
+      cargarSalidas(1);
+    }, 350);
+  }
+
+  function limpiarFiltros() {
+    if (buscarSalidaInput) buscarSalidaInput.value = '';
+    cargarSalidas(1);
+  }
+    /* ================= ACTUALIZAR ESTATUS ================= */
+    async function actualizarEstatus(id, nuevoEstatus) {
+      try {
+        const res = await fetch(`${API}/${id}/estatus`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ EstatusPago: nuevoEstatus })
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Error al actualizar estatus');
+        }
+
+      
+const index = todasSalidas.findIndex(s => s._id === id);
+if (index !== -1) {
+  todasSalidas[index].EstatusPago = nuevoEstatus;
+}
+
+toast('Estatus actualizado correctamente', 'success');
+renderizarSalidas(todasSalidas.length); // ✅ Mantiene el contador correcto
+
+      } catch (err) {
+        toast(`Error: ${err.message}`, 'danger');
+        console.error(err);
+        setTimeout(() => cargarSalidas(), 1000);
+      }
+    }
+
+   /* ================= GENERAR PDF POR FECHA ================= */
+document.getElementById('btnReportePDF').onclick = async () => {
+  const fechaInput = document.getElementById('fechaReporte')?.value;
+  if (!fechaInput) return toast('Selecciona una fecha para el reporte', 'warning');
+
+  try {
+    toast('Consultando información de la fecha...', 'info');
+
+    // Consultamos al backend las salidas de la fecha seleccionada
+    const res = await fetch(`${API}/todas?limit=1000&fecha=${fechaInput}`);
+    if (!res.ok) throw new Error('Error al obtener datos para el PDF');
+
+    const responseData = await res.json();
+    const salidasFecha = responseData.data || responseData;
+
+    const filas = [];
+    let totalPagado = 0;
+    let totalPendiente = 0;
+    let totalDevueltoPiezas = 0;
+
+    salidasFecha.forEach(salida => {
+      // Filtro de seguridad por fecha (YYYY-MM-DD)
+      const fechaSalida = salida.FechaSalida ? salida.FechaSalida.split('T')[0] : '';
+
+      if (fechaSalida === fechaInput && Array.isArray(salida.Productos)) {
+        salida.Productos.forEach(p => {
+          const cantidadVendida = p.CantidadVendida || p.Cantidad || 0;
+          const cantidadDevuelta = p.CantidadDevuelta || 0;
+          const cantidadReal = cantidadVendida - cantidadDevuelta;
+
+          totalDevueltoPiezas += cantidadDevuelta;
+
+          if (cantidadReal > 0) {
+            const precio = p.PrecioVenta || 0;
+            const subtotal = cantidadReal * precio;
+
+            const estatus = salida.EstatusPago || 'PENDIENTE';
+            // 🔧 Sumamos según el estatus correspondiente (PAGADO o PENDIENTE)
+            if (estatus === 'PAGADO') {
+              totalPagado += subtotal;
+            } else {
+              totalPendiente += subtotal;
+            }
+
+            filas.push([
+              p.NombreProducto || '-',
+              salida.Cliente || '-',
+              cantidadReal.toString(),
+              moneda(precio),
+              moneda(subtotal),
+              salida.EstatusPago || 'PENDIENTE',
+              cantidadDevuelta.toString()
+            ]);
+          }
+        });
+      }
+    });
+
+    if (filas.length === 0) {
+      return toast('No hay salidas registradas en esa fecha', 'warning');
+    }
+
+    // Inicializar jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Encabezado
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('REPORTE DE SALIDAS', 105, 15, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Fecha del reporte: ${fechaInput.split('-').reverse().join('/')}`, 14, 25);
+    doc.line(14, 28, 196, 28);
+
+    // Tabla de contenidos
+    doc.autoTable({
+      startY: 35,
+      head: [['Producto', 'Cliente', 'Cantidad', 'Precio', 'Subtotal', 'Estatus', 'Devuelto']],
+      body: filas,
+      styles: { fontSize: 9, cellPadding: 3, valign: 'middle' },
+      headStyles: { fillColor: [33, 37, 41], textColor: 255, halign: 'center' },
+      columnStyles: {
+        0: { halign: 'left', cellWidth: 35 },
+        1: { halign: 'left', cellWidth: 30 },
+        2: { halign: 'center', cellWidth: 20 },
+        3: { halign: 'right', cellWidth: 25 },
+        4: { halign: 'right', cellWidth: 25 },
+        5: { halign: 'center', cellWidth: 25 },
+        6: { halign: 'center', cellWidth: 20 }
+      },
+      alternateRowStyles: { fillColor: [245, 245, 245] }
+    });
+
+    const yFinal = doc.lastAutoTable.finalY + 15;
+
+    // Resumen
+   doc.setFontSize(10);
+    
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(`   Pagado   : ${moneda(totalPagado)}`, 14, yFinal + 13);
+    doc.text(`   Pendiente: ${moneda(totalPendiente)}`, 14, yFinal + 19);
+
+    if (totalDevueltoPiezas > 0) {
+      doc.text(`Total piezas devueltas: ${totalDevueltoPiezas}`, 14, yFinal + 26);
+    }
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Documento generado automáticamente por el sistema', 105, 285, { align: 'center' });
+
+    doc.save(`Salidas_${fechaInput}.pdf`);
+    toast('PDF generado correctamente', 'success');
+
+  } catch (err) {
+    console.error(err);
+    toast(`Error al generar PDF: ${err.message}`, 'danger');
+  }
+};
+
+
+/* ================= EXPORTAR A EXCEL ================= */
+document.getElementById('btnExportar').onclick = () => {
+  if (!todasSalidas || todasSalidas.length === 0) {
+    return toast('No hay datos disponibles para exportar', 'warning');
+  }
+
+  const fechaHoy = new Date().toISOString().split('T')[0];
+  const datos = [];
+
+  // Encabezados del archivo
+  datos.push([
+    'Folio',
+    'Producto',
+    'Tipo Salida',
+    'Cliente',
+    'Empresa',
+    'No. Parte',
+    'Fecha',
+    'Cantidad',
+    'Precio',
+    'Subtotal',
+    'Estatus Pago',
+    'Devuelto',
+    'Estado'
+  ]);
+
+  todasSalidas.forEach(salida => {
+    const productos = Array.isArray(salida.Productos) ? salida.Productos : [];
+
+    productos.forEach(p => {
+      let empresa = 'N/A';
+      if (salida.TipoVenta === 'INTERNA' && salida.ClienteEmpresa?.empresa) {
+        empresa = salida.ClienteEmpresa.empresa.nombre || 'N/A';
+      }
+
+      const precio = p.PrecioVenta || 0;
+      const cantidadVendida = p.CantidadVendida || p.Cantidad || 0;
+      const cantidadDevuelta = p.CantidadDevuelta || 0;
+      const cantidadReal = cantidadVendida - cantidadDevuelta;
+      const subtotal = cantidadReal * precio;
+
+      if (cantidadReal >= 0) {
+        datos.push([
+          salida.FolioSalida || '-',
+          p.NombreProducto || '-',
+          salida.TipoVenta || '-',
+          salida.Cliente || '-',
+          empresa,
+          p.NoParte || '-',
+          formatearFecha(salida.FechaSalida),
+          cantidadReal,
+          precio,
+          subtotal,
+          salida.EstatusPago || 'PENDIENTE',
+          cantidadDevuelta,
+          p.Estado || 'ACTIVO'
+        ]);
+      }
+    });
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(datos);
+  XLSX.utils.book_append_sheet(wb, ws, 'Salidas');
+  XLSX.writeFile(wb, `salidas_${fechaHoy}.xlsx`);
+
+  toast('Archivo Excel generado correctamente', 'success');
+};
+    /* ================= ELIMINAR TODO ================= */
+    document.getElementById('btnEliminarTodo').onclick = () => {
+      if (!haySalidasPagadas()) {
+        toast('No existen salidas PAGADAS para eliminar', 'warning');
+        return;
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('modalEliminarTodo'));
+      modal.show();
+    };
+
+    document.getElementById('confirmarEliminarTodo').onclick = async () => {
+      try {
+        const res = await fetch(`${API}/pagadas`, {
+          method: 'DELETE'
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.message || 'Error al eliminar salidas pagadas');
+        }
+
+        toast('Salidas PAGADAS eliminadas correctamente', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('modalEliminarTodo')).hide();
+        await cargarSalidas();
+
+      } catch (err) {
+        console.error(err);
+        toast(`Error: ${err.message}`, 'danger');
+      }
+    };
+
+    /* ================= DEVOLUCIONES ================= */
+    function abrirModalDevolucion(salidaId, productoId, cantidadOriginal, cantidadDevuelta) {
+      console.log('Abriendo modal devolución:', {
+        salidaId,
+        productoId,
+        cantidadOriginal,
+        cantidadDevuelta,
+        tipoProductoId: typeof productoId
+      });
+
+      // Verificar que productoId sea válido
+      if (!productoId || productoId === '[object Object]' || productoId === 'undefined') {
+        toast('Error: ID de producto no válido', 'danger');
+        console.error('productoId inválido:', productoId);
+        return;
+      }
+
+      const max = cantidadOriginal - cantidadDevuelta;
+
+      if (max <= 0) {
+        toast('No hay cantidad disponible para devolver', 'warning');
+        return;
+      }
+
+      document.getElementById('cantidadDevolverInput').max = max;
+      document.getElementById('cantidadDevolverInput').value = 1;
+      document.getElementById('salidaIdDevolver').value = salidaId;
+      document.getElementById('productoIdDevolver').value = productoId;
+      document.getElementById('cantidadOriginalDevolver').value = cantidadOriginal;
+      document.getElementById('maxDisponible').textContent = max;
+
+      new bootstrap.Modal(document.getElementById('modalDevolucion')).show();
+    }
+
+    document.getElementById('btnConfirmarDevolucion').onclick = async () => {
+      const salidaId = document.getElementById('salidaIdDevolver').value;
+      const productoId = document.getElementById('productoIdDevolver').value;
+      const cantidad = parseInt(document.getElementById('cantidadDevolverInput').value);
+
+      if (!cantidad || cantidad <= 0) {
+        toast('Ingrese una cantidad válida', 'warning');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/devolver`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            salidaId,
+            productoId,
+            cantidadADevolver: cantidad
+          })
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.message);
+        }
+
+        toast('Producto devuelto correctamente', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('modalDevolucion')).hide();
+        cargarSalidas();
+
+      } catch (err) {
+        toast(err.message, 'danger');
+      }
+    };
+
+   document.addEventListener('DOMContentLoaded', function () {
+  cargarSalidas();
+
+  // El uso de ?. previene el error 'Cannot read properties of null (reading addEventListener)'
+  //document.getElementById('buscarSalida')?.addEventListener('input', filtrarSalidas); linea mala
+  document.getElementById('btnLimpiarFiltros')?.addEventListener('click', limpiarFiltros);
+
+  const fechaReporte = document.getElementById('fechaReporte');
+  if (fechaReporte) {
+    fechaReporte.value = new Date().toISOString().split('T')[0];
+  }
+
+  const btnAnterior = document.getElementById('btnPaginaAnterior');
+  if (btnAnterior) {
+    btnAnterior.onclick = () => {
+      if (paginaActual > 1) {
+        paginaActual--;
+        renderizarSalidas();
+      }
+    };
+  }
+
+  const btnSiguiente = document.getElementById('btnPaginaSiguiente');
+  if (btnSiguiente) {
+    btnSiguiente.onclick = () => {
+      paginaActual++;
+      renderizarSalidas();
+    };
+  }
+});
+/* ================= CONSULTA API (FETCH) ================= */
+  async function cargarSalidas(pagina = 1) {
+    try {
+      estaCargando = true;
+      renderizarSalidas();
+
+      const clienteBusqueda = buscarSalidaInput ? buscarSalidaInput.value.trim() : '';
+      const url = new URL(`${API}/todas`);
+      url.searchParams.append('page', pagina);
+      url.searchParams.append('limit', limitePorPagina);
+
+      if (clienteBusqueda) {
+        url.searchParams.append('cliente', clienteBusqueda); // Envía ej: ?cliente=Juan
+      }
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Error al cargar salidas');
+
+      const responseData = await res.json();
+
+      todasSalidas = responseData.data || [];
+      paginaActual = responseData.paginaActual || 1;
+      totalPaginas = responseData.totalPaginas || 1;
+
+      estaCargando = false;
+      renderizarSalidas(responseData.totalSalidas || 0);
+
+    } catch (err) {
+      estaCargando = false;
+      console.error(err);
+      toast(`Error: ${err.message}`, 'danger');
+    }
+  }
+
+  /* ================= INICIALIZACIÓN ================= */
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Cargar primera página al entrar
+    cargarSalidas(1);
+
+    // 2. Escuchar evento de búsqueda en el input
+    if (buscarSalidaInput) {
+      buscarSalidaInput.addEventListener('input', manejarFiltroInput);
+    }
+
+    // 3. Escuchar evento de limpiar filtros
+    if (btnLimpiarFiltros) {
+      btnLimpiarFiltros.addEventListener('click', limpiarFiltros);
+    }
+
+    // 4. Escuchar eventos de paginación
+    if (btnPaginaAnterior) {
+      btnPaginaAnterior.addEventListener('click', () => {
+        if (paginaActual > 1) cargarSalidas(paginaActual - 1);
+      });
+    }
+
+    if (btnPaginaSiguiente) {
+      btnPaginaSiguiente.addEventListener('click', () => {
+        if (paginaActual < totalPaginas) cargarSalidas(paginaActual + 1);
+      });
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Ventas | Gestión Completa</title>
+  
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="../Css/Clientes.css">
+</head>
+
+<body>
+  <div class="container container-main py-4">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="page-title">
+            <i class="bi bi-people-fill"></i>
+            Sistema de Gestión de Ventas
+          </h1>
+          <p class="mb-0 mt-2 opacity-75">Administración de clientes, empresas y reportes de ventas</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-custom btn-success-custom" onclick="mostrarModalEmpresa()">
+            <i class="bi bi-building-add"></i>
+            Nueva Empresa
+          </button>
+          <button class="btn btn-custom btn-primary-custom" onclick="mostrarModalCliente()">
+            <i class="bi bi-person-add"></i>
+            Nuevo Cliente
+          </button>
+          <button class="btn btn-custom btn-secondary-custom" onclick="obtenerClientes()">
+            <i class="bi bi-arrow-clockwise"></i>
+            Actualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pestañas de navegación -->
+    <ul class="nav nav-tabs nav-tabs-custom" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button" role="tab">
+          <i class="bi bi-people me-2"></i>
+          Clientes
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="empresas-tab" data-bs-toggle="tab" data-bs-target="#empresas" type="button" role="tab">
+          <i class="bi bi-building me-2"></i>
+          Empresas
+        </button>
+      </li>
+    </ul>
+
+    <!-- Contenido de las pestañas -->
+    <div class="tab-content" id="myTabContent">
+      <!-- Pestaña de Clientes -->
+      <div class="tab-pane fade show active" id="clientes" role="tabpanel">
+        <div class="card-custom">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">
+              <i class="bi bi-table me-2"></i>
+              Lista de Clientes
+            </h5>
+            <div>
+              <span class="badge bg-primary" id="contadorClientes">0 clientes</span>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <div class="table-responsive">
+              <table class="table table-custom table-hover" id="tablaClientes">
+                <thead>
+                  <tr>
+                    <th>Operador</th>
+                    <th>Unidad</th>
+                    <th class="text-center">Kilometraje</th>
+                    <th>Empresa</th>
+                    <th class="text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="clientesTabla">
+                  <!-- Los datos se cargarán aquí -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña de Empresas -->
+      <div class="tab-pane fade" id="empresas" role="tabpanel">
+        <div class="card-custom">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">
+              <i class="bi bi-building me-2"></i>
+              Lista de Empresas
+            </h5>
+            <div>
+              <span class="badge bg-primary" id="contadorEmpresas">0 empresas</span>
+            </div>
+          </div>
+          
+          <div class="table-container">
+            <div class="table-responsive">
+              <table class="table table-custom table-hover" id="tablaEmpresas">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>RFC</th>
+                    <th>Régimen Fiscal</th>
+                    <th>Uso CFDI</th>
+                    <th class="text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="empresasTabla">
+                  <!-- Los datos se cargarán aquí -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <div class="card-custom d-none" id="emptyState">
+      <div class="empty-state">
+        <i class="bi bi-people"></i>
+        <h4>No hay datos registrados</h4>
+        <p class="mb-4">No se han encontrado registros en el sistema.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PRODUCTOS (REPORTE DE VENTAS) -->
+  <div class="modal fade modal-custom" id="productosModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-box-seam me-2"></i>
+            <span id="productosTitulo"></span>
+          </h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-custom btn-pdf" onclick="mostrarModalNumeroServicio()">
+              <i class="bi bi-file-earmark-pdf me-2"></i>
+              Exportar PDF
+            </button>
+            <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <!-- Información del cliente -->
+          <div class="cliente-info">
+            <div class="row">
+              <div class="col-md-6">
+                <h5>Información del Cliente</h5>
+                <p><strong>Operador:</strong> <span id="clienteOperador"></span></p>
+                <p><strong>Unidad:</strong> <span id="clienteUnidad"></span></p>
+                <p><strong>Kilometraje:</strong> <span id="clienteKilometraje"></span></p>
+              </div>
+              <div class="col-md-6">
+                <h5>Información de la Empresa</h5>
+                <p><strong>Empresa:</strong> <span id="empresaNombre"></span></p>
+                <p><strong>RFC:</strong> <span id="empresaRFC"></span></p>
+                <p><strong>Domicilio:</strong> <span id="empresaDomicilio"></span></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de productos -->
+          <div class="table-responsive">
+            <table class="table table-bordered table-modal">
+              <thead>
+                <tr>
+                  <th class="text-center">#</th>
+                  <th class="text-center">Producto</th>
+                  <th class="text-center">No. Parte</th>
+                  <th class="text-center">Cantidad</th>
+                  <th class="text-center">Precio Unitario</th>
+                  <th class="text-center">Subtotal</th>
+                  <th class="text-center">Folio</th>
+                  <th class="text-center">Fecha</th>
+                </tr>
+              </thead>
+              <tbody id="productosClienteTabla">
+                <!-- Los datos se cargarán aquí -->
+              </tbody>
+              <tfoot>
+                <tr class="total-footer">
+                  <td colspan="5" class="text-end fw-bold">TOTAL:</td>
+                  <td class="text-end fw-bold text-success" id="totalVentas">$0.00</td>
+                  <td colspan="2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CLIENTE -->
+  <div class="modal fade modal-custom" id="clienteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-person-plus me-2"></i>
+            <span id="clienteModalTitle">Nuevo Cliente</span>
+          </h5>
+          <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="clienteId">
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-person-badge"></i>
+              Operador
+            </label>
+            <input type="text" id="clienteOperadorInput" class="form-control form-control-custom" 
+                   placeholder="Nombre del operador" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-truck"></i>
+              Unidad
+            </label>
+            <input type="text" id="clienteUnidadInput" class="form-control form-control-custom" 
+                   placeholder="Número de unidad" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-speedometer2"></i>
+              Kilometraje
+            </label>
+            <input type="number" id="clienteKilometrajeInput" class="form-control form-control-custom" 
+                   placeholder="0" min="0" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-building"></i>
+              Empresa
+            </label>
+            <select id="clienteEmpresaSelect" class="form-select form-select-custom" required>
+              <option value="">Seleccione una empresa</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button class="btn btn-primary" onclick="guardarCliente()">
+            <i class="bi bi-save me-2"></i>
+            Guardar Cliente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EMPRESA -->
+  <div class="modal fade modal-custom" id="empresaModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-building-add me-2"></i>
+            <span id="empresaModalTitle">Nueva Empresa</span>
+          </h5>
+          <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="empresaId">
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-building"></i>
+              Nombre de la Empresa
+            </label>
+            <input type="text" id="empresaNombreInput" class="form-control form-control-custom" 
+                   placeholder="Nombre de la Empresa" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-upc-scan"></i>
+              RFC
+            </label>
+            <input type="text" id="empresaRFCInput" class="form-control form-control-custom" 
+                   placeholder="RFC de la empresa" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-geo-alt"></i>
+              Domicilio
+            </label>
+            <input type="text" id="empresaDomicilioInput" class="form-control form-control-custom" 
+                   placeholder="Dirección completa" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-file-text"></i>
+              Régimen Fiscal
+            </label>
+            <input type="text" id="empresaRegimenInput" class="form-control form-control-custom" 
+                   placeholder="Ej: General de Ley Personas Morales" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label-custom">
+              <i class="bi bi-receipt"></i>
+              Uso CFDI
+            </label>
+            <input type="text" id="empresaCFDIInput" class="form-control form-control-custom" 
+                   placeholder="Ej: G03 - Gastos en general" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button class="btn btn-primary" onclick="guardarEmpresa()">
+            <i class="bi bi-save me-2"></i>
+            Guardar Empresa
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NÚMERO DE SERVICIO -->
+  <div class="modal fade modal-custom" id="numeroServicioModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-tag-fill me-2"></i>
+            Número de Servicio (Opcional)
+          </h5>
+          <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-4">
+            <i class="bi bi-file-text text-primary" style="font-size: 3rem;"></i>
+            <p class="mt-2 text-muted">Ingrese un número de servicio para el reporte</p>
+          </div>
+          
+          <div class="mb-4">
+            <label class="numero-servicio-label">
+              <i class="bi bi-hash"></i>
+              Número de Servicio
+            </label>
+            <input type="text" class="form-control numero-servicio-input" id="numeroServicioInput"
+                   placeholder="Ej: SERV-001-2024" maxlength="50">
+            <div class="form-text text-muted mt-2">
+              Este campo es opcional. Deje vacío si no desea incluir un número de servicio.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button class="btn btn-primary" onclick="generarPDFConNumeroServicio()">
+            <i class="bi bi-file-earmark-pdf me-2"></i>
+            Generar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
+    <div id="toast" class="toast border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body d-flex align-items-center" id="toastMsg">
+          <i class="bi bi-check-circle-fill me-3 fs-5"></i>
+          <span>Acción completada</span>
+        </div>
+        <button class="btn-close btn-close-white m-auto me-3" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="../Js/Clientes.js"> </script>
+  <script src="../Js/auth.js"> </script>
+ 
+</body>
+</html>
